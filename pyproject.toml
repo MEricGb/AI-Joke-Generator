@@ -1,0 +1,15 @@
+[project]
+name = "ai-joke-generator"
+version = "1.0.0"
+description = "AI-powered joke generator with text processing and TTS (Ollama)"
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.28.0",
+    "gtts>=2.4.0",
+    "python-dotenv>=1.0.0",
+    "SpeechRecognition>=3.10.0",
+    "pyaudio>=0.2.14",
+]
+
+[tool.setuptools]
+py-modules = ["main", "gui", "config", "joke_generator", "text_processing", "tts_engine", "stt_engine", "utils"]
