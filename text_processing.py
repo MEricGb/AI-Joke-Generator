@@ -196,10 +196,19 @@ def detect_language(text: str) -> Tuple[str, float]:
     # Determine language with highest score
     total_score = sum(scores.values())
     if total_score == 0:
-        return ("en", 0.5)  # Default to English with low confidence
+        return ("en", 0.7)  # Default to English - most common case
 
     best_lang = max(scores, key=scores.get)
-    confidence = scores[best_lang] / (total_score + 1)
+    best_score = scores[best_lang]
+
+    # Calculate confidence based on how dominant the best language is
+    if total_score > 0:
+        # Ratio of best score to total (how clear the detection is)
+        dominance = best_score / total_score
+        # Scale confidence: if only one language scores, it's high confidence
+        confidence = 0.5 + (dominance * 0.5)
+    else:
+        confidence = 0.7
 
     return (best_lang, min(confidence, 1.0))
 

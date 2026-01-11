@@ -2,11 +2,29 @@
 Speech-to-Text Engine Module.
 
 Handles microphone input and speech recognition using SpeechRecognition library.
+
+Requirements:
+- macOS: brew install portaudio && pip install pyaudio
+- Linux: sudo apt-get install portaudio19-dev && pip install pyaudio
+- Windows: pip install pyaudio (usually works directly)
 """
 
-import speech_recognition as sr
-from typing import Optional, Callable
 import threading
+from typing import Optional, Callable
+
+# Check for required dependencies
+try:
+    import speech_recognition as sr
+    SPEECH_RECOGNITION_AVAILABLE = True
+except ImportError:
+    SPEECH_RECOGNITION_AVAILABLE = False
+    sr = None
+
+try:
+    import pyaudio
+    PYAUDIO_AVAILABLE = True
+except ImportError:
+    PYAUDIO_AVAILABLE = False
 
 
 class STTEngineError(Exception):
@@ -26,6 +44,22 @@ class STTEngine:
 
     def __init__(self):
         """Initialize the STT engine."""
+        # Check dependencies first
+        if not SPEECH_RECOGNITION_AVAILABLE:
+            raise STTEngineError(
+                "SpeechRecognition not installed.\n"
+                "Install with: pip install SpeechRecognition"
+            )
+
+        if not PYAUDIO_AVAILABLE:
+            raise STTEngineError(
+                "PyAudio not installed (required for microphone).\n"
+                "Install with:\n"
+                "  macOS: brew install portaudio && pip install pyaudio\n"
+                "  Linux: sudo apt-get install portaudio19-dev && pip install pyaudio\n"
+                "  Windows: pip install pyaudio"
+            )
+
         self.recognizer = sr.Recognizer()
         self.microphone: Optional[sr.Microphone] = None
         self.is_listening = False

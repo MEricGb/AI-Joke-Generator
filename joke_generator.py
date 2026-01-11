@@ -77,11 +77,11 @@ class JokeGenerator:
         tone: str
     ) -> str:
         """Build the prompt for joke generation."""
-        return config.JOKE_PROMPT_TEMPLATE.format(
+        return config.build_joke_prompt(
+            context=context,
             num_jokes=num_jokes,
-            tone=tone.lower(),
             language=language,
-            context=context
+            tone=tone
         )
 
     def generate_jokes(
