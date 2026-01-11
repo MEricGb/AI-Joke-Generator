@@ -126,7 +126,9 @@ Ghid pentru ton: {tone_guide}
 Exemple de referință (pentru stil, nu copia):
 {examples_text}
 
-Generează exact {num_jokes} glumă/glume bazate pe următorul context: {context}
+Generează EXACT {num_jokes} glumă/glume bazate pe următorul context: {context}
+
+IMPORTANT: Generează EXACT {num_jokes} - nu mai multe, nu mai puține!
 
 Reguli:
 1. Numerotează fiecare glumă (1., 2., etc.)
@@ -134,6 +136,7 @@ Reguli:
 3. Glumele trebuie să fie relevante pentru context
 4. Fiecare glumă trebuie să fie completă și de sine stătătoare
 5. Adaugă o linie goală între glume
+6. OPREȘTE-TE după gluma numărul {num_jokes}
 
 Generează glumele acum:"""
     else:
@@ -145,7 +148,9 @@ Tone guidance: {tone_guide}
 Reference examples (for style, don't copy):
 {examples_text}
 
-Generate exactly {num_jokes} joke(s) based on the following context: {context}
+Generate EXACTLY {num_jokes} joke(s) based on the following context: {context}
+
+IMPORTANT: Generate EXACTLY {num_jokes} jokes - no more, no less!
 
 Rules:
 1. Number each joke (1., 2., etc.)
@@ -153,6 +158,7 @@ Rules:
 3. Jokes must be relevant to the provided context
 4. Each joke should be complete and self-contained
 5. Add a blank line between jokes
+6. STOP after joke number {num_jokes}
 
 Generate the jokes now:"""
 

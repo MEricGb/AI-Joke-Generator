@@ -162,6 +162,9 @@ class JokeGenerator:
 
             if raw_text:
                 jokes = self._parse_jokes(raw_text)
+                # Enforce the requested number of jokes
+                if len(jokes) > num_jokes:
+                    jokes = jokes[:num_jokes]
                 return {
                     "success": True,
                     "jokes": jokes,
