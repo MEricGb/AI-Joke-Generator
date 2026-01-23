@@ -1,138 +1,51 @@
 import os
 import re
 from datetime import datetime
-from typing import List, Optional
 import config
 
 
 def validate_context(context: str) -> tuple[bool, str]:
-    """
-    Validate user-provided context input.
-
-    Args:
-        context: User input text
-
-    Returns:
-        Tuple of (is_valid, error_message)
-    """
     if not context:
         return False, "Context cannot be empty."
 
     context = context.strip()
-
     if len(context) < 2:
         return False, "Context must be at least 2 characters."
-
     if len(context) > 500:
         return False, "Context must not exceed 500 characters."
-
-    # Check for only special characters
     if re.match(r'^[^a-zA-Z0-9\u0100-\u017F]+$', context):
         return False, "Context must contain some letters or numbers."
 
     return True, ""
 
 
-def validate_num_jokes(num_jokes: int) -> tuple[bool, str, int]:
-    """
-    Validate and clamp the number of jokes.
-
-    Args:
-        num_jokes: Requested number of jokes
-
-    Returns:
-        Tuple of (is_valid, error_message, clamped_value)
-    """
-    try:
-        num = int(num_jokes)
-    except (ValueError, TypeError):
-        return False, "Number of jokes must be a valid integer.", config.DEFAULT_JOKES
-
-    if num < config.MIN_JOKES:
-        return True, "", config.MIN_JOKES
-    if num > config.MAX_JOKES:
-        return True, "", config.MAX_JOKES
-
-    return True, "", num
-
-
-def format_jokes_for_display(jokes: List[str]) -> str:
-    """
-    Format jokes list for display in the GUI.
-
-    Args:
-        jokes: List of joke strings
-
-    Returns:
-        Formatted string with proper spacing
-    """
+def format_jokes_for_display(jokes: list[str]) -> str:
     if not jokes:
         return "No jokes generated."
 
-    formatted_parts = []
+    parts = []
     for i, joke in enumerate(jokes, 1):
-        # Clean the joke text
-        joke = joke.strip()
+        joke = re.sub(r'^\d+[.)\-:]\s*', '', joke.strip())
+        parts.append(f"{i}. {joke}")
 
-        # Remove existing numbering if present
-        joke = re.sub(r'^\d+[.)\-:]\s*', '', joke)
-
-        # Add consistent numbering
-        formatted_parts.append(f"{i}. {joke}")
-
-    return "\n\n".join(formatted_parts)
+    return "\n\n".join(parts)
 
 
-def format_jokes_for_tts(jokes: List[str]) -> str:
-    """
-    Format jokes for text-to-speech.
-
-    Adds pauses between jokes and removes special characters
-    that might cause issues with TTS.
-
-    Args:
-        jokes: List of joke strings
-
-    Returns:
-        Formatted string optimized for speech
-    """
+def format_jokes_for_tts(jokes: list[str]) -> str:
     if not jokes:
         return ""
 
-    tts_parts = []
+    parts = []
     for i, joke in enumerate(jokes, 1):
-        # Clean the joke
-        joke = joke.strip()
-        joke = re.sub(r'^\d+[.)\-:]\s*', '', joke)
-
-        # Remove special characters that affect TTS
+        joke = re.sub(r'^\d+[.)\-:]\s*', '', joke.strip())
         joke = re.sub(r'[*_#~`]', '', joke)
+        parts.append(f"Joke number {i}. {joke}")
 
-        # Add joke number announcement
-        tts_parts.append(f"Joke number {i}. {joke}")
-
-    # Join with pauses (periods create natural pauses in TTS)
-    return " ... ".join(tts_parts)
+    return " ... ".join(parts)
 
 
-def save_jokes_to_file(
-    jokes: List[str],
-    filepath: Optional[str] = None,
-    context: str = "",
-    language: str = "English"
-) -> tuple[bool, str]:
-    """
-    Save jokes to a text file.
-
-    Args:
-        jokes: List of jokes to save
-        filepath: Optional custom path. If None, uses default
-        context: Original context used for generation
-        language: Language of the jokes
-
-    Returns:
-        Tuple of (success, filepath_or_error_message)
-    """
+def save_jokes_to_file(jokes: list[str], filepath: str = None,
+                       context: str = "", language: str = "English") -> tuple[bool, str]:
     if not jokes:
         return False, "No jokes to save."
 
@@ -142,142 +55,18 @@ def save_jokes_to_file(
 
     try:
         with open(filepath, 'w', encoding='utf-8') as f:
-            f.write("=" * 50 + "\n")
-            f.write("AI JOKE GENERATOR - SAVED JOKES\n")
-            f.write("=" * 50 + "\n\n")
-            f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write(f"Language: {language}\n")
-            f.write(f"Context: {context}\n")
-            f.write("-" * 50 + "\n\n")
+            f.write(f"AI Joke Generator - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Language: {language} | Context: {context}\n")
+            f.write("-" * 40 + "\n\n")
 
             for i, joke in enumerate(jokes, 1):
-                joke = joke.strip()
-                joke = re.sub(r'^\d+[.)\-:]\s*', '', joke)
+                joke = re.sub(r'^\d+[.)\-:]\s*', '', joke.strip())
                 f.write(f"{i}. {joke}\n\n")
 
-            f.write("=" * 50 + "\n")
-            f.write("Generated by AI Joke Generator\n")
-
         return True, os.path.abspath(filepath)
-
     except OSError as e:
-        return False, f"Failed to save file: {e}"
-
-
-def truncate_text(text: str, max_length: int = 100, suffix: str = "...") -> str:
-    """
-    Truncate text to maximum length with suffix.
-
-    Args:
-        text: Text to truncate
-        max_length: Maximum length including suffix
-        suffix: Suffix to add if truncated
-
-    Returns:
-        Truncated text
-    """
-    if not text or len(text) <= max_length:
-        return text
-
-    return text[:max_length - len(suffix)] + suffix
-
-
-def get_language_name(code: str) -> str:
-    """
-    Get language name from code.
-
-    Args:
-        code: Language code (e.g., "en", "ro")
-
-    Returns:
-        Language name (e.g., "English", "Romanian")
-    """
-    for name, c in config.SUPPORTED_LANGUAGES.items():
-        if c == code:
-            return name
-    return "English"
+        return False, f"Failed to save: {e}"
 
 
 def get_language_code(name: str) -> str:
-    """
-    Get language code from name.
-
-    Args:
-        name: Language name (e.g., "English", "Romanian")
-
-    Returns:
-        Language code (e.g., "en", "ro")
-    """
     return config.SUPPORTED_LANGUAGES.get(name, "en")
-
-
-def clean_text_for_processing(text: str) -> str:
-    """
-    Clean text for processing.
-
-    Removes extra whitespace, normalizes line breaks, etc.
-
-    Args:
-        text: Input text
-
-    Returns:
-        Cleaned text
-    """
-    if not text:
-        return ""
-
-    # Replace multiple whitespaces with single space
-    text = re.sub(r'\s+', ' ', text)
-
-    # Strip leading/trailing whitespace
-    text = text.strip()
-
-    return text
-
-
-def format_error_message(error: str) -> str:
-    """
-    Format error message for display.
-
-    Args:
-        error: Raw error message
-
-    Returns:
-        User-friendly error message
-    """
-    # Common error patterns and friendly messages
-    error_mappings = {
-        "api key": "API key error. Please check your GOOGLE_API_KEY.",
-        "quota": "API quota exceeded. Please try again later.",
-        "network": "Network error. Please check your internet connection.",
-        "timeout": "Request timed out. Please try again.",
-        "empty": "No content generated. Please try different keywords.",
-    }
-
-    error_lower = error.lower()
-    for pattern, message in error_mappings.items():
-        if pattern in error_lower:
-            return message
-
-    return error
-
-
-def get_app_info() -> dict:
-    """
-    Get application information.
-
-    Returns:
-        Dictionary with app info
-    """
-    return {
-        "name": "AI Joke Generator",
-        "version": "1.0.0",
-        "description": "Generate context-aware jokes using AI",
-        "author": "Laboratory Project",
-        "features": [
-            "AI-powered joke generation",
-            "Text signal processing",
-            "Text-to-Speech",
-            "Multi-language support"
-        ]
-    }
