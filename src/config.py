@@ -1,7 +1,7 @@
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).parent / ".env")
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 # Ollama settings
 OLLAMA_BASE_URL = "http://localhost:11434"

@@ -1,8 +1,8 @@
 # Joke generation using Ollama local LLM
 
 import requests
-import config
-import prompts
+from . import config
+from . import prompts
 
 
 class JokeGeneratorError(Exception):

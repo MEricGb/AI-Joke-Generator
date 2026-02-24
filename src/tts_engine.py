@@ -4,7 +4,7 @@ import tempfile
 import threading
 import subprocess
 from gtts import gTTS
-import config
+from . import config
 
 
 class TTSEngineError(Exception):

@@ -1,7 +1,7 @@
 import os
 import re
 from datetime import datetime
-import config
+from . import config
 
 
 def validate_context(context: str) -> tuple[bool, str]:

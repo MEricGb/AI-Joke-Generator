@@ -12,4 +12,5 @@ dependencies = [
 ]
 
 [tool.setuptools]
-py-modules = ["main", "gui", "config", "prompts", "joke_generator", "text_processing", "tts_engine", "stt_engine", "utils"]
+py-modules = ["main"]
+packages = ["src"]

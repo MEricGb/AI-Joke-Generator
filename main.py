@@ -39,7 +39,7 @@ def main():
         print("  You can still launch the app and connect later.\n")
 
     try:
-        from gui import run_app
+        from src.gui import run_app
         run_app()
         return 0
     except KeyboardInterrupt:

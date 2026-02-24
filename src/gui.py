@@ -5,12 +5,12 @@ from tkinter import ttk, messagebox, filedialog
 import threading
 from typing import Optional, List
 
-import config
-import utils
-import text_processing
-from joke_generator import JokeGenerator, JokeGeneratorError
-from tts_engine import TTSEngine, TTSEngineError
-from stt_engine import STTEngine, STTEngineError
+from . import config
+from . import utils
+from . import text_processing
+from .joke_generator import JokeGenerator, JokeGeneratorError
+from .tts_engine import TTSEngine, TTSEngineError
+from .stt_engine import STTEngine, STTEngineError
 
 
 # Modern color scheme and styling
